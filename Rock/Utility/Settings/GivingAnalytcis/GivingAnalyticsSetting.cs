@@ -1,8 +1,22 @@
-﻿using System;
+﻿// <copyright>
+// Copyright by the Spark Development Network
+//
+// Licensed under the Rock Community License (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.rockrms.com/license
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// </copyright>
+//
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rock.Utility.Settings.GivingAnalytics
 {
@@ -21,7 +35,7 @@ namespace Rock.Utility.Settings.GivingAnalytics
         }
 
         /// <summary>
-        /// Gets or sets the giving analytics. 
+        /// Gets or sets the giving analytics.
         /// </summary>
         /// <value>
         /// The giving analytics.
@@ -48,6 +62,7 @@ namespace Rock.Utility.Settings.GivingAnalytics
         public GivingAnalytics()
         {
             this.GiverAnalyticsRunDays = new List<DayOfWeek>();
+            this.GiverBins = new List<GiverBin>();
         }
 
         /// <summary>
@@ -73,6 +88,14 @@ namespace Rock.Utility.Settings.GivingAnalytics
         /// A <see cref="System.DateTime"/> representing the date and time of the last time that the giving analytics Job completed successfully
         /// </value>
         public DateTime? GivingAnalyticsLastRunDateTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the giver bins.
+        /// </summary>
+        /// <value>
+        /// The giver bins.
+        /// </value>
+        public List<GiverBin> GiverBins { get; set; }
     }
 
     /// <summary>
@@ -103,5 +126,18 @@ namespace Rock.Utility.Settings.GivingAnalytics
         /// The followup repeat prevention duration.
         /// </value>
         public int? FollowupRepeatPreventionDurationDays { get; set; }
+    }
+
+    /// <summary>
+    /// Information About the Giver Bin
+    /// </summary>
+    public class GiverBin {
+        /// <summary>
+        /// Gets or sets the lower range.
+        /// </summary>
+        /// <value>
+        /// The lower range.
+        /// </value>
+        public decimal? LowerLimit { get; set; }
     }
 }
