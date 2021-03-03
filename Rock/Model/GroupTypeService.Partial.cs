@@ -125,7 +125,16 @@ namespace Rock.Model
 
             foreach ( var rootCheckinAreaGroupTypeId in checkinTemplates.Select( a => a.Id ) )
             {
-                result.AddRange( this.GetCheckinAreaDescendantsPath( rootCheckinAreaGroupTypeId ) );
+                var checkinAreaDescendantsPath = GetCheckinAreaDescendantsPath( rootCheckinAreaGroupTypeId );
+                foreach ( var checkinAreaDescendantPath in checkinAreaDescendantsPath )
+                {
+                    // just in case multiple checkin areas share a child group type, check for duplicates
+                    var alreadyExists = result.Any( x => x.GroupTypeId == checkinAreaDescendantPath.GroupTypeId );
+                    if ( !alreadyExists )
+                    {
+                        result.Add( checkinAreaDescendantPath );
+                    }
+                }
             }
 
             return result;
@@ -470,6 +479,9 @@ namespace Rock.Model
         {
             List<GroupTypeCache> parentGroupTypeList = new List<GroupTypeCache>();
             var parentGroupType = checkinArea;
+
+            bool hasMultipleParents = false;
+
             while ( parentGroupType != null )
             {
                 if ( rootGroupType != null && parentGroupType.Id == rootGroupType.Id )
@@ -488,6 +500,8 @@ namespace Rock.Model
 
                 if ( parentGroupType.ParentGroupTypes.Count > 1 )
                 {
+                    hasMultipleParents = true;
+
                     // A CheckinArea shouldn't have more than 1 parent, but since this one does,
                     // exclude any parents that are the root group, and exclude any we already have
                     // then pick the first of whatever are remaining
@@ -501,6 +515,18 @@ namespace Rock.Model
                 else
                 {
                     parentGroupType = parentGroupType.ParentGroupTypes.FirstOrDefault();
+                }
+            }
+
+            if ( hasMultipleParents )
+            {
+                var firstParentGroupType = parentGroupTypeList.FirstOrDefault();
+                if ( firstParentGroupType != null )
+                {
+                    if ( firstParentGroupType.GroupTypePurposeValue?.Guid == Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE.AsGuid() )
+                    {
+                        parentGroupTypeList.Remove( firstParentGroupType );
+                    }
                 }
             }
 

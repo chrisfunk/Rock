@@ -608,7 +608,9 @@ namespace Rock.CheckIn
                 .Select( a => a.Id )
                 .Distinct();
 
-            var checkinAreaPathsLookup = new GroupTypeService( new Rock.Data.RockContext() ).GetAllCheckinAreaPaths().ToDictionary( k => k.GroupTypeId, v => v );
+            // just in case GetAllCheckinAreaPaths returns duplicates, do a GroupBy before creating a dictionary
+            var checkinAreaPathsLookup = new GroupTypeService( new Rock.Data.RockContext() ).GetAllCheckinAreaPaths()
+                .GroupBy( a=> a.GroupTypeId).ToDictionary( k => k.Key, v => v.FirstOrDefault() );
 
             var attendees = new List<RosterAttendee>();
             foreach ( var attendance in attendanceList )
