@@ -40,7 +40,7 @@ namespace Rock.Jobs
     ///       triggered from gifts expected but not given) once a day.
     /// </summary>
     [DisplayName( "Giving Analytics" )]
-    [Description( "Job that updates giving classification attributes as well as sending giving alerts." )]
+    [Description( "Job that updates giving classification attributes as well as creating giving alerts." )]
     [DisallowConcurrentExecution]
 
     [IntegerField( "Max Days Since Last Gift",
@@ -123,6 +123,9 @@ namespace Rock.Jobs
             {
                 ProcessGivingId( givingId, context );
             }
+
+            // Store the last run date
+            LastRunDateTime = context.Now;
 
             // Format the result message
             jobContext.Result = $"Classified {context.GivingIdsSuccessful} giving {"group".PluralizeIf( context.GivingIdsSuccessful != 1 )}. There were {context.GivingIdsFailed} {"failure".PluralizeIf( context.GivingIdsFailed != 1 )}";
@@ -542,32 +545,16 @@ namespace Rock.Jobs
                     }
                 }
 
-                // If there are less than 10 giving groups, then there is not enough meaningful information to create
-                // bin ranges. Note: 10 is arbitrary... just looking for where a meaningful count begins.
-                if ( givingGroupCount < 10 )
-                {
-                    SetGivingBinLowerLimit( 0, null );
-                    SetGivingBinLowerLimit( 1, null );
-                    SetGivingBinLowerLimit( 2, null );
-                    SetGivingBinLowerLimit( 3, null );
-                    return;
-                }
+                // These should be static, but just in case the count changes for some reason
+                var percentileCount = context.PercentileLowerRange.Count;
+                var firstBinStartIndex = ( int ) decimal.Round( percentileCount * GiverBinLowerPercentile.First );
+                var secondBinStartIndex = ( int ) decimal.Round( percentileCount * GiverBinLowerPercentile.Second );
+                var thirdBinStartIndex = ( int ) decimal.Round( percentileCount * GiverBinLowerPercentile.Third );
 
-                var firstBinStartIndex = ( int ) decimal.Round( givingGroupCount * GiverBinLowerPercentile.First );
-                var secondBinStartIndex = ( int ) decimal.Round( givingGroupCount * GiverBinLowerPercentile.Second );
-                var thirdBinStartIndex = ( int ) decimal.Round( givingGroupCount * GiverBinLowerPercentile.Third );
-
-                // The top bin at 95% could resolve to an index that is beyond the end of the list if the list is short.
-                // If the count is 10, then the top bin is 9.5 rounded to 10, which would be beyond the array end.
-                if ( firstBinStartIndex >= givingGroupCount )
-                {
-                    firstBinStartIndex = givingGroupCount - 1;
-                }
-
-                SetGivingBinLowerLimit( 0, givingGroups[firstBinStartIndex].Last12MonthsTotalGift );
-                SetGivingBinLowerLimit( 1, givingGroups[secondBinStartIndex].Last12MonthsTotalGift );
-                SetGivingBinLowerLimit( 2, givingGroups[thirdBinStartIndex].Last12MonthsTotalGift );
-                SetGivingBinLowerLimit( 3, givingGroups[0].Last12MonthsTotalGift );
+                SetGivingBinLowerLimit( 0, context.PercentileLowerRange[firstBinStartIndex] );
+                SetGivingBinLowerLimit( 1, context.PercentileLowerRange[secondBinStartIndex] );
+                SetGivingBinLowerLimit( 2, context.PercentileLowerRange[thirdBinStartIndex] );
+                SetGivingBinLowerLimit( 3, context.PercentileLowerRange[0] );
             }
         }
 
