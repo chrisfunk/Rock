@@ -9,11 +9,11 @@ namespace Rock.Migrations
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
     public sealed partial class GivingAnalyticsPersonAttributes : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(UpdateFinancialTransactionAlertType));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(RegistrationSessionPropChanges));
         
         string IMigrationMetadata.Id
         {
-            get { return "202102241943488_GivingAnalyticsPersonAttributes"; }
+            get { return "202103051501416_GivingAnalyticsPersonAttributes"; }
         }
         
         string IMigrationMetadata.Source

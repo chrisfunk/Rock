@@ -14,16 +14,16 @@
 // limitations under the License.
 // </copyright>
 //
-using System;
-using System.Collections.Generic;
-using Rock.Web.Cache;
-
 namespace Rock.Migrations
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data.Entity.Migrations;
+
     /// <summary>
-    /// GivingAnalyticsPersonAttributes
+    ///
     /// </summary>
-    public partial class GivingAnalyticsPersonAttributes : RockMigration
+    public partial class GivingAnalyticsPersonAttributes : Rock.Migrations.RockMigration
     {
         /// <summary>
         /// Operations to be performed during the upgrade process.
